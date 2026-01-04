@@ -1,0 +1,62 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+}
+
+nav {
+  background: #1e3a8a;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav a {
+  color: white;
+  margin-left: 20px;
+  text-decoration: none;
+}
+
+.hero {
+  background: #2563eb;
+  color: white;
+  padding: 60px;
+  text-align: center;
+}
+
+.section {
+  padding: 40px;
+  text-align: center;
+}
+
+.chart-box {
+  width: 650px;
+  margin: 30px auto;
+}
+
+form {
+  max-width: 320px;
+  margin: auto;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+}
+
+button {
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.quote {
+  text-align: center;
+  margin: 40px 0;
+  font-style: italic;
+  color: #475569;
+}

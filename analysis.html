@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Water Issue Analysis</title>
+  <meta name="description" content="Daily updated analysis of water supply issues in Pune including trends, severity and complaint statistics.">
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+<nav>
+  <h2>WaterWatch</h2>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="report.html">Report</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<section class="section">
+  <h2>📊 Smart Water Issue Analysis (Pune)</h2>
+
+  <!-- AI INSIGHTS -->
+  <div class="insight-box" id="aiInsights">
+    <h3>🤖 AI Insights</h3>
+    <p>Loading insights...</p>
+  </div>
+
+  <div class="chart-box">
+    <h3>📅 Daily Complaint Count</h3>
+    <canvas id="dailyChart"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <h3>⚠️ Issue Type Distribution</h3>
+    <canvas id="issueChart"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <h3>📈 Daily Trend of Water Problems</h3>
+    <canvas id="trendChart"></canvas>
+  </div>
+</section>
+
+<p class="quote">“Water is life — protect it for today and tomorrow.”</p>
+
+
+ <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCtvIW08Ua6Eq54rUEGivd0MZwDBBUNV84",
+    authDomain: "waterwatch-1e3fe.firebaseapp.com",
+    projectId: "waterwatch-1e3fe",
+    storageBucket: "waterwatch-1e3fe.firebasestorage.app",
+    messagingSenderId: "312750742066",
+    appId: "1:312750742066:web:276db9e0f0187d04e93a2b",
+    measurementId: "G-2KG51B5HDG"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  let dailyChart, issueChart, trendChart;
+
+  db.collection("waterIssues").onSnapshot(snapshot => {
+
+    let dailyCounts = {};
+    let issueCounts = {
+      "Low Pressure": 0,
+      "No Water": 0,
+      "Irregular": 0
+    };
+
+    let totalComplaints = 0;
+
+    snapshot.forEach(doc => {
+      const d = doc.data();
+
+      if (d.city === "Pune" && d.timestamp) {
+        const date = d.timestamp.toDate().toLocaleDateString();
+
+        dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+        issueCounts[d.issue]++;
+        totalComplaints++;
+      }
+    });
+
+    drawDailyChart(dailyCounts);
+    drawIssueChart(issueCounts);
+    drawTrendChart(dailyCounts);
+    generateAIInsights(dailyCounts, issueCounts, totalComplaints);
+  });
+
+  /* 📊 Charts */
+
+  function drawDailyChart(data) {
+    if (dailyChart) dailyChart.destroy();
+    dailyChart = new Chart(document.getElementById("dailyChart"), {
+      type: "bar",
+      data: {
+        labels: Object.keys(data),
+        datasets: [{ label: "Complaints per Day", data: Object.values(data) }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  function drawIssueChart(data) {
+    if (issueChart) issueChart.destroy();
+    issueChart = new Chart(document.getElementById("issueChart"), {
+      type: "pie",
+      data: {
+        labels: Object.keys(data),
+        datasets: [{ data: Object.values(data) }]
+      }
+    });
+  }
+
+  function drawTrendChart(data) {
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(document.getElementById("trendChart"), {
+      type: "line",
+      data: {
+        labels: Object.keys(data),
+        datasets: [{ label: "Daily Trend", data: Object.values(data), fill: false }]
+      }
+    });
+  }
+
+  /* 🤖 AI-STYLE INSIGHT LOGIC */
+
+  function generateAIInsights(dailyCounts, issueCounts, total) {
+    const insightBox = document.getElementById("aiInsights");
+
+    // Day with most complaints
+    let maxDay = "";
+    let maxCount = 0;
+    for (let day in dailyCounts) {
+      if (dailyCounts[day] > maxCount) {
+        maxCount = dailyCounts[day];
+        maxDay = day;
+      }
+    }
+
+    // Most frequent issue
+    let majorIssue = "";
+    let issueMax = 0;
+    for (let issue in issueCounts) {
+      if (issueCounts[issue] > issueMax) {
+        issueMax = issueCounts[issue];
+        majorIssue = issue;
+      }
+    }
+
+    // Severity prediction
+    let severity = "Low Risk";
+    if (total > 10) severity = "Moderate Risk";
+    if (total > 25) severity = "High Risk";
+
+    insightBox.innerHTML = `
+      <p>📅 <strong>Highest complaints:</strong> ${maxDay} (${maxCount})</p>
+      <p>⚠️ <strong>Most common issue:</strong> ${majorIssue}</p>
+      <p>🚨 <strong>Current Severity Level:</strong> ${severity}</p>
+      <p>🧠 <em>Insight generated using trend-based analysis (AI-ready data)</em></p>
+    `;
+  }
+</script>
+
+</body>
+</html>
